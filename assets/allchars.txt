@@ -1,0 +1,5 @@
+[32, 126],0x25A0
+@include "gp.txt"
+@include "goods.dat"
+@include "talk.txt"
+@include "other.txt"

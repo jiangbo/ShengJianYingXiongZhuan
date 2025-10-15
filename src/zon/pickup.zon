@@ -1,0 +1,19 @@
+.{
+    .{ .itemIndex = 0, .count = 0 },
+    .{ .itemIndex = 0, .count = 0 },
+    .{ .itemIndex = 0, .count = 0 },
+    .{ .itemIndex = 0, .count = 0 },
+    // 第一张地图
+    .{ .itemIndex = 0, .count = 0 },
+    .{ .itemIndex = 0, .count = 0 },
+    .{ .itemIndex = 6, .count = 1 },
+    .{ .itemIndex = 5, .count = 1 },
+    // 第二张地图 8
+    .{ .itemIndex = 4, .count = 1 },
+    .{ .itemIndex = 5, .count = 1 },
+    .{ .itemIndex = 8, .count = 1 },
+    .{ .itemIndex = 4, .count = 1 },
+    // 宫殿 12
+    .{ .itemIndex = 18, .count = 1 },
+    .{ .itemIndex = 14, .count = 1 },
+}

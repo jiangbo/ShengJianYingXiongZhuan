@@ -1,0 +1,194 @@
+.{
+    .{ .id = 0 }, .{ .id = 1 }, .{ .id = 2 }, .{ .id = 3 },
+    .{
+        .id = 4,
+        .name = "红玫瑰",
+        .about =
+        \\娇艳欲滴的鲜红玫瑰，但
+        \\隐藏着锋利的毒刺。
+        ,
+        .money = 50,
+        .exp = 30,
+        .health = -30,
+        .attack = 0,
+        .defend = 0,
+    },
+    .{
+        .id = 5,
+        .name = "花蘑菇",
+        .about = "疗伤用的菌类。",
+        .money = 40,
+        .exp = 0,
+        .health = 40,
+        .attack = 0,
+        .defend = 0,
+    },
+    .{
+        .id = 6,
+        .name = "止血草",
+        .about = "止血疗伤的草药。",
+        .money = 60,
+        .exp = 0,
+        .health = 80,
+        .attack = 0,
+        .defend = 0,
+    },
+    .{
+        .id = 7,
+        .name = "还魂草",
+        .about =
+        \\非常有效的药物，
+        \\拥有起死回生的功效
+        ,
+        .money = 120,
+        .exp = 0,
+        .health = 150,
+        .attack = 0,
+        .defend = 0,
+    },
+    .{
+        .id = 8,
+        .name = "粉骷髅",
+        .about =
+        \\邪恶的象征，需要涂上
+        \\正义的鲜血才能发挥它
+        \\的功效。
+        ,
+        .money = 200,
+        .exp = 50,
+        .health = -50,
+        .attack = 1,
+        .defend = 1,
+    },
+    .{
+        .id = 9,
+        .name = "长拳拳谱",
+        .about = "一本普通的拳谱。",
+        .money = 400,
+        .exp = 50,
+        .health = 0,
+        .attack = 2,
+        .defend = 2,
+    },
+    .{
+        .id = 10,
+        .name = "重剑",
+        .about =
+        \\笨重的武器，但具有相当
+        \\大的杀伤力！
+        ,
+        .money = 200,
+        .exp = 0,
+        .health = 0,
+        .attack = 4,
+        .defend = -4,
+    },
+    .{
+        .id = 11,
+        .name = "圣剑",
+        .about =
+        \\威力无比的宝物，相传为
+        \\剑圣当年使用的兵器。
+        ,
+        .money = 4000,
+        .exp = 0,
+        .health = 0,
+        .attack = 10,
+        .defend = 10,
+    },
+    .{
+        .id = 12,
+        .name = "匕首",
+        .about =
+        \\短身的刀具，短小但很
+        \\合手，适合初学者用，
+        \\但攻击力偏小。。。。
+        ,
+        .money = 100,
+        .exp = 0,
+        .health = 0,
+        .attack = 1,
+        .defend = 0,
+    },
+    .{
+        .id = 13,
+        .name = "凝霜剑",
+        .about =
+        \\长刃刀，在三伏天会在剑
+        \\身上凝结水滴。
+        ,
+        .money = 360,
+        .exp = 0,
+        .health = 0,
+        .attack = 4,
+        .defend = 0,
+    },
+    .{
+        .id = 14,
+        .name = "古文明盔甲",
+        .about =
+        \\迷的古代文明的遗迹挖掘
+        \\出的盔甲，在胸前刻有
+        \\“中华人民共合国制造”
+        \\的字样。
+        ,
+        .money = 360,
+        .exp = 0,
+        .health = 0,
+        .attack = 0,
+        .defend = 4,
+    },
+    .{
+        .id = 15,
+        .name = "凝霜剑",
+        .about =
+        \\长刃刀，在三伏天会在剑身
+        \\上凝结水滴。
+        ,
+        .money = 360,
+        .exp = 0,
+        .health = 0,
+        .attack = 4,
+        .defend = 0,
+    },
+    .{
+        .id = 16,
+        .name = "皮甲",
+        .about =
+        \\用皮革制造成的战甲，能
+        \\够抵御刀箭的伤害。
+        ,
+        .money = 100,
+        .exp = 0,
+        .health = 0,
+        .attack = 0,
+        .defend = 1,
+    },
+    .{
+        .id = 17,
+        .name = "红色药瓶",
+        .about =
+        \\未知的药物，未知的
+        \\效果。。。。
+        ,
+        .money = 500,
+        .exp = 0,
+        .health = 100,
+        .attack = 3,
+        .defend = 3,
+    },
+    .{
+        .id = 18,
+        .name = "药瓶",
+        .about =
+        \\装有药物的玻璃瓶，但没
+        \\有标签，所以喝下后有
+        \\50%的可能中毒。。。。
+        ,
+        .money = 200,
+        .exp = 0,
+        .health = 999,
+        .attack = 0,
+        .defend = 0,
+    },
+}

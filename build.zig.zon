@@ -1,0 +1,18 @@
+.{
+    .name = .demo,
+    .version = "0.0.0",
+    .fingerprint = 0xd642dfa0c0da2385,
+    .minimum_zig_version = "0.15.2",
+    .dependencies = .{
+        .sokol = .{
+            .url = "git+https://github.com/floooh/sokol-zig#bdd5350dd867469b1a8bb77f204b5c52f07ec146",
+            .hash = "sokol-0.1.0-pb1HK7S2LgB6z8YdnK_EphntlkZ92I8MBVDQlHBqpNUr",
+        },
+        .stb = .{
+            .url = "git+https://github.com/nothings/stb#f0569113c93ad095470c54bf34a17b36646bbbb5",
+            .hash = "N-V-__8AAJopTgBuYbPPno6GEtqFAeIhKHyhTJcJ-Vp2FpHj",
+        },
+    },
+
+    .paths = .{""},
+}
