@@ -1,0 +1,107 @@
+// 战斗菜单布局。
+.{
+    .position = .{ .x = 297, .y = 310 },
+    .selected = 0,
+    .buttons = .{
+        .{
+            .label = "攻击",
+            .event = 0,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 0, .y = 0 },
+                .size = .{ .x = 48, .y = 25 },
+            } },
+            .normal = .{
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .hover = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+        },
+        .{
+            .label = "状态",
+            .event = 1,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 0, .y = 25 },
+                .size = .{ .x = 48, .y = 25 },
+            } },
+            .normal = .{
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .hover = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+        },
+        .{
+            .label = "物品",
+            .event = 2,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 0, .y = 50 },
+                .size = .{ .x = 48, .y = 25 },
+            } },
+            .normal = .{
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .hover = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+        },
+        .{
+            .label = "逃走",
+            .event = 3,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 0, .y = 75 },
+                .size = .{ .x = 48, .y = 25 },
+            } },
+            .normal = .{
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .hover = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+                .text = .{
+                    .color = .{ .r = 1, .a = 1 },
+                },
+            },
+        },
+    },
+}

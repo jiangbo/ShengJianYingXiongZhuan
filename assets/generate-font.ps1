@@ -1,1 +1,0 @@
-msdf-atlas-gen.exe -font .\SourceHanSansSC-Medium.otf -yorigin top -charset .\allchars.txt -json font.json -imageout font.png

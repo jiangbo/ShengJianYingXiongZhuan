@@ -1,0 +1,108 @@
+.{
+    .position = .{ .x = 0, .y = 280 },
+    .panel = .{
+        .size = .{ .x = 150, .y = 200 },
+        .image = 2742161179,
+    },
+    .selected = 0,
+    .buttons = .{
+        .{
+            .label = "状　　态",
+            .event = 0,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 33, .y = 18 },
+                .size = .{ .x = 85, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+            },
+        },
+        .{
+            .label = "物　　品",
+            .event = 1,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 33, .y = 43 },
+                .size = .{ .x = 85, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+            },
+        },
+        .{
+            .label = "读取进度",
+            .event = 2,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 33, .y = 67 },
+                .size = .{ .x = 85, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+            },
+        },
+        .{
+            .label = "存储进度",
+            .event = 3,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 33, .y = 91 },
+                .size = .{ .x = 85, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+            },
+        },
+        .{
+            .label = "关于游戏",
+            .event = 4,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 33, .y = 115 },
+                .size = .{ .x = 85, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+            },
+        },
+        .{
+            .label = "退　　出",
+            .event = 5,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 33, .y = 139 },
+                .size = .{ .x = 85, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+            },
+        },
+        .{
+            .label = "返回游戏",
+            .event = 6,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 33, .y = 163 },
+                .size = .{ .x = 85, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .a = 1 },
+            },
+        },
+    },
+}

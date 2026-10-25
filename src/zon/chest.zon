@@ -1,0 +1,19 @@
+.{
+    null,
+    null,
+    null,
+    null,
+    // 第一张地图
+    .{ .id = 4 },
+    .{ .id = 5 },
+    .{ .id = 6, .item = .zhiXueCao },
+    .{ .id = 7, .item = .huaMoGu },
+    // 第二张地图
+    .{ .id = 8, .item = .hongMeiGui },
+    .{ .id = 9, .item = .huaMoGu },
+    .{ .id = 10, .item = .fenKuLou },
+    .{ .id = 11, .item = .hongMeiGui },
+    // 宫殿
+    .{ .id = 12, .item = .yaoPing },
+    .{ .id = 13, .item = .guWenMingKuiJia },
+}

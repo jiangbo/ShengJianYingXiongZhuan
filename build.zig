@@ -1,185 +1,145 @@
 const std = @import("std");
-const sk = @import("sokol");
-
-const Options = struct {
-    mod: *std.Build.Module,
-    sokol: *std.Build.Dependency,
-};
+const zhuBuild = @import("zhuyu");
+const sk = zhuBuild.sokol;
 
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    const sokol = b.dependency("sokol", .{
+    const android = target.result.abi.isAndroid();
+
+    const zhuyu = b.dependency("zhuyu", .{
+        .target = target,
+        .optimize = optimize,
+        // macOS 本机可省略，交叉编译时指定 MacOSX*.sdk 路径。
+        .macos_sdk = b.option([]const u8, "macos-sdk", "macOS SDK directory"),
+        .msdf = true,
+        .midi = true,
+    });
+    const migu = b.dependency("migu", .{
         .target = target,
         .optimize = optimize,
     });
 
-    const exeModule = b.createModule(.{
+    // 生成图片图集，尺寸上限容纳地图素材。
+    zhuBuild.atlas.addStep(b, zhuyu, .{
+        .input = "raw-assets/atlas",
+        .maxSize = 2048,
+    });
+
+    // 从按用途分类的中文原文生成 MSDF，沿用当前生成字号。
+    try zhuBuild.msdf.addStep(b, zhuyu, .{
+        .font = "raw-assets/font/NotoSansCJKsc-Medium.otf",
+        .input = "raw-assets/font/zh",
+        .size = 28,
+    });
+
+    // 转换原始音频并统一采样率，其他格式原样拷贝。
+    try zhuBuild.audio.addStep(b, zhuyu, .{
+        .input = "raw-assets/audio",
+        .rate = 11025,
+    });
+
+    // 应用模块同时用于构建产物和测试。
+    const mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
+        // 所有平台仅 Debug 保留调试符号。
+        .strip = optimize != .debug,
         .imports = &.{
-            .{ .name = "sokol", .module = sokol.module("sokol") },
+            .{ .name = "ecs", .module = migu.module("ecs") },
+            .{ .name = "zhu", .module = zhuyu.module("zhu") },
         },
     });
 
-    const options = Options{ .mod = exeModule, .sokol = sokol };
-    if (target.result.cpu.arch.isWasm()) {
-        try buildWeb(b, options);
-    } else {
-        try buildNative(b, options);
-    }
-}
-
-fn buildNative(b: *std.Build, options: Options) !void {
-    const exe = b.addExecutable(.{
-        .name = "demo",
-        .root_module = options.mod,
-    });
-
-    const optimize = options.mod.optimize.?;
-    const target = options.mod.resolved_target.?;
-    if (optimize != .Debug) exe.subsystem = .Windows;
-
-    const zhuModule = b.createModule(.{
-        .root_source_file = b.path("src/engine/root.zig"),
+    // SDK 安装命令不依赖目标平台，与 Web 链接共用同一份依赖。
+    const sokol = zhuyu.builder.dependency("sokol", .{
         .target = target,
         .optimize = optimize,
     });
+    const emsdk = sokol.builder.dependency("emsdk", .{});
+    const installEmsdk = sk.emSdkInstallStep(b, emsdk, .{});
+    b.step("install-emsdk", "Install Emscripten SDK").dependOn(installEmsdk);
 
-    exe.root_module.addImport("zhu", zhuModule);
+    if (android) {
+        const lib = try zhuBuild.buildAndroid(b, zhuyu, .{
+            .name = "demo",
+            .root_module = mod,
+            .sdk = b.option([]const u8, "sdk", "Android SDK directory"),
+        });
+        b.installArtifact(lib);
+    } else if (target.result.os.tag == .emscripten) {
+        try buildWeb(b, mod, emsdk);
+    } else {
+        buildNative(b, zhuyu, mod);
+    }
 
-    if (optimize != .Debug) exe.subsystem = .Windows;
+    const tests = b.addTest(.{ .name = "tests", .root_module = mod });
+    const runTests = b.addRunArtifact(tests);
+    b.step("test", "Run tests").dependOn(&runTests.step);
+}
 
+// 构建原生应用，安装产物并提供运行命令。
+fn buildNative(
+    b: *std.Build,
+    zhuyu: *std.Build.Dependency,
+    mod: *std.Build.Module,
+) void {
+    const exe = b.addExecutable(.{ .name = "demo", .root_module = mod });
+    // Windows 所有构建模式都使用窗口子系统，不创建控制台窗口。
+    if (exe.rootModuleTarget().os.tag == .windows) {
+        exe.subsystem = .windows;
+        // 在构建缓存中生成资源脚本，将米白底角色图标嵌入 EXE。
+        const files = b.addWriteFiles();
+        exe.root_module.addWin32ResourceFile(.{
+            .file = files.add("icon.rc", "1 ICON \"icon.ico\"\n"),
+            .include_paths = &.{b.path("raw-assets")},
+        });
+    }
     b.installArtifact(exe);
 
-    const sokol = b.dependency("sokol", .{ .target = target, .optimize = optimize });
-    zhuModule.addImport("sokol", sokol.module("sokol"));
+    // 原生资源安装到可执行文件旁边，供引擎按相对路径读取。
+    b.installDirectory(.{
+        .source_dir = b.path("assets"),
+        .install_dir = .bin,
+        .install_subdir = "assets",
+    });
 
-    const writeFiles = b.addWriteFiles();
-    exe.step.dependOn(&writeFiles.step);
+    // 由引擎注册资源打包命令，普通构建和运行使用原始程序。
+    zhuBuild.addPackStep(b, zhuyu, .{ .exe = exe });
 
-    const stb = b.dependency("stb", .{ .target = target, .optimize = optimize });
-    zhuModule.addIncludePath(stb.path("."));
-    const stbImagePath = writeFiles.add("stb_image.c", stbImageSource);
-    zhuModule.addCSourceFile(.{ .file = stbImagePath, .flags = &.{"-O2"} });
-
-    const stbAudioPath = writeFiles.add("stb_audio.c", stbAudioSource);
-    zhuModule.addCSourceFile(.{ .file = stbAudioPath, .flags = &.{"-O2"} });
-
-    const run_cmd = b.addRunArtifact(exe);
-    run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
-    b.step("run", "Run the app").dependOn(&run_cmd.step);
+    const run = b.addRunArtifact(exe);
+    run.step.dependOn(b.getInstallStep());
+    run.addPassthruArgs();
+    b.step("run", "Run the app").dependOn(&run.step);
 }
 
-fn buildWeb(b: *std.Build, options: Options) !void {
-    const optimize = options.mod.optimize.?;
-    const target = options.mod.resolved_target.?;
-
-    const exe = b.addLibrary(.{
-        .name = "demo",
-        .root_module = options.mod,
-    });
-
-    const zhuModule = b.createModule(.{
-        .root_source_file = b.path("src/engine/root.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    exe.root_module.addImport("zhu", zhuModule);
-
-    const sokol = b.dependency("sokol", .{ .target = target, .optimize = optimize });
-    zhuModule.addImport("sokol", sokol.module("sokol"));
-
-    const emsdk = options.sokol.builder.dependency("emsdk", .{});
-    const include = emsdk.path(b.pathJoin(&.{ "upstream", "emscripten", "cache", "sysroot", "include" }));
-    zhuModule.addSystemIncludePath(include);
-
-    const writeFiles = b.addWriteFiles();
-    exe.step.dependOn(&writeFiles.step);
-
-    const stbAudioPath = writeFiles.add("stb_audio.c", stbAudioSource);
-    zhuModule.addCSourceFile(.{ .file = stbAudioPath, .flags = &.{ "-O2", "-fno-sanitize=undefined" } });
-
-    const emPath = writeFiles.add("em.c", emSource);
-    zhuModule.addCSourceFile(.{ .file = emPath, .flags = &.{ "-O2", "-fno-sanitize=undefined" } });
-
-    const stb = b.dependency("stb", .{ .target = target, .optimize = optimize });
-    zhuModule.addIncludePath(stb.path("."));
-    const stbImagePath = writeFiles.add("stb_image.c", stbImageSource);
-    zhuModule.addCSourceFile(.{ .file = stbImagePath, .flags = &.{ "-O2", "-fno-sanitize=undefined" } });
-
-    const link_step = try sk.emLinkStep(b, .{
-        .lib_main = exe,
-        .target = target,
-        .optimize = optimize,
-        .use_webgl2 = true,
+// 构建 Web 静态库，再交给 Emscripten 链接和安装。
+fn buildWeb(
+    b: *std.Build,
+    mod: *std.Build.Module,
+    emsdk: *std.Build.Dependency,
+) !void {
+    const lib = b.addLibrary(.{ .name = "demo", .root_module = mod });
+    const link = try sk.emLinkStep(b, .{
+        .target = mod.resolved_target.?,
+        .optimize = mod.optimize.?,
+        .lib_main = lib,
         .emsdk = emsdk,
+        .use_webgl2 = true,
         .use_emmalloc = true,
-        .use_filesystem = false,
+        // TODO: Zig 修复 std.Io 未使用函数保留问题后，确认 Web 的 Debug 和
+        // ReleaseSafe 在 false 下均可链接并正常运行，再关闭文件系统。
+        // https://codeberg.org/ziglang/zig/issues/31421
+        .use_filesystem = true,
         .shell_file_path = b.path("index.html"),
     });
+    b.getInstallStep().dependOn(&link.step);
 
-    // attach Emscripten linker output to default install step
-    b.getInstallStep().dependOn(&link_step.step);
+    // Web 资源随 HTML 一起安装。
+    b.installDirectory(.{
+        .source_dir = b.path("assets"),
+        .install_dir = .prefix,
+        .install_subdir = "web/assets",
+    });
 }
-
-const stbImageSource =
-    \\
-    \\#define STB_IMAGE_IMPLEMENTATION
-    \\#define STBI_ONLY_PNG
-    \\#define STBI_NO_STDIO
-    \\#include "stb_image.h"
-    \\
-;
-
-const stbAudioSource =
-    \\
-    \\#define STB_VORBIS_NO_PUSHDATA_API
-    \\#define STB_VORBIS_NO_INTEGER_CONVERSION
-    \\#define STB_VORBIS_NO_STDIO
-    \\
-    \\#include "stb_vorbis.c"
-    \\
-;
-
-const emSource =
-    \\#if defined(__EMSCRIPTEN__)
-    \\
-    \\#include <emscripten.h>
-    \\
-    \\EM_JS(void, em_js_file_save, (const char *c_path, const char *c_data, int len), {
-    \\    const path = UTF8ToString(c_path);
-    \\    console.log("save file: ",path);
-    \\    const bytes = HEAPU8.subarray(c_data, c_data + len);
-    \\    console.log("save file bytes len: ",len);
-    \\    const base64 = btoa(String.fromCharCode(...bytes));
-    \\    window.localStorage.setItem(path, base64);
-    \\});
-    \\
-    \\EM_JS(int, em_js_file_load, (const char *c_path, char *out_buf, int len), {
-    \\    const path = UTF8ToString(c_path);
-    \\    console.log("load file: ",path);
-    \\    const base64 = window.localStorage.getItem(path);
-    \\    if (!base64) return 0;
-    \\
-    \\    const binary = atob(base64);
-    \\    if (binary.length > len) return 0;
-    \\    for (let i = 0; i < binary.length; i++) {
-    \\        HEAPU8[out_buf + i] = binary.charCodeAt(i);
-    \\    }
-    \\    return binary.length;
-    \\});
-    \\
-    \\int my_add(int a, int b)
-    \\{
-    \\    return a + b;
-    \\}
-    \\
-    \\#endif // defined(__EMSCRIPTEN__)
-    \\
-;

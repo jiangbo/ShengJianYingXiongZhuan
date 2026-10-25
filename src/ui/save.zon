@@ -1,0 +1,95 @@
+.{
+    .position = .{ .x = 0, .y = 280 },
+    .panel = .{
+        .size = .{ .x = 150, .y = 200 },
+        .image = 1628337646,
+    },
+    .navKeys = .{ .cancel = .{ .Q, .ESCAPE } },
+    .cancelEvent = 6,
+    .buttons = .{
+        .{
+            .label = "进度一",
+            .event = 1,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 45, .y = 20 },
+                .size = .{ .x = 65, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+        },
+        .{
+            .label = "进度二",
+            .event = 2,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 45, .y = 48 },
+                .size = .{ .x = 65, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+        },
+        .{
+            .label = "进度三",
+            .event = 3,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 45, .y = 76 },
+                .size = .{ .x = 65, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+        },
+        .{
+            .label = "进度四",
+            .event = 4,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 45, .y = 104 },
+                .size = .{ .x = 65, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+        },
+        .{
+            .label = "进度五",
+            .event = 5,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 45, .y = 132 },
+                .size = .{ .x = 65, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+        },
+        .{
+            .label = "取　消",
+            .event = 6,
+            .shape = .{ .rect = .{
+                .min = .{ .x = 45, .y = 160 },
+                .size = .{ .x = 65, .y = 25 },
+            } },
+            .hover = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+            .pressed = .{
+                .color = .{ .r = 0.73, .g = 0.72, .b = 0.53, .a = 1 },
+            },
+        },
+    },
+}

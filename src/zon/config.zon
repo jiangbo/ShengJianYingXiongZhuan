@@ -1,0 +1,117 @@
+.{
+    .player = .{
+        .{ // down
+            .imageId = 587090341,
+            .size = .{ .x = 32, .y = 48 },
+            .frames = .{
+                .{ .offset = .{ .x = 0, .y = 0 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 32, .y = 0 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 64, .y = 0 }, .duration = 0.15 },
+            },
+        },
+        .{ // left
+            .imageId = 587090341,
+            .size = .{ .x = 32, .y = 48 },
+            .frames = .{
+                .{ .offset = .{ .x = 0, .y = 48 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 32, .y = 48 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 64, .y = 48 }, .duration = 0.15 },
+            },
+        },
+        .{ // up
+            .imageId = 587090341,
+            .size = .{ .x = 32, .y = 48 },
+            .frames = .{
+                .{ .offset = .{ .x = 0, .y = 144 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 32, .y = 144 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 64, .y = 144 }, .duration = 0.15 },
+            },
+        },
+        .{ // right
+            .imageId = 587090341,
+            .size = .{ .x = 32, .y = 48 },
+            .frames = .{
+                .{ .offset = .{ .x = 0, .y = 96 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 32, .y = 96 }, .duration = 0.15 },
+                .{ .offset = .{ .x = 64, .y = 96 }, .duration = 0.15 },
+            },
+        },
+    },
+    .bomb = .{
+        .{
+            .imageId = 2226213412,
+            .size = .{ .x = 54, .y = 50 },
+            .frames = .{
+                .{ .offset = .{ .x = 0, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 54, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 108, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 162, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 216, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 270, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 324, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 378, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 432, .y = 0 }, .duration = 0.06 },
+                .{ .offset = .{ .x = 486, .y = 0 }, .duration = 0.06 },
+            },
+            .loop = false,
+        },
+    },
+    .npc = .{
+        .images = .{
+            2610952066,
+            3341894831,
+            2970057436,
+            4089000681,
+            4088431766,
+            2674793955,
+            2716385008,
+            4092741133,
+            2444728410,
+            3120794636,
+            3073980703,
+            2378808498,
+            2326771685,
+            2861212896,
+            2390627923,
+        },
+        .size = .{ .x = 32, .y = 32 },
+        .frames = .{
+            .{ // down
+                .{ .offset = .{ .x = 0, .y = 0 }, .duration = 0.5 },
+                .{ .offset = .{ .x = 32, .y = 0 }, .duration = 0.5 },
+            },
+            .{ // left
+                .{ .offset = .{ .x = 0, .y = 32 }, .duration = 0.5 },
+                .{ .offset = .{ .x = 32, .y = 32 }, .duration = 0.5 },
+            },
+            .{ // up
+                .{ .offset = .{ .x = 0, .y = 64 }, .duration = 0.5 },
+                .{ .offset = .{ .x = 32, .y = 64 }, .duration = 0.5 },
+            },
+            .{ // right
+                .{ .offset = .{ .x = 0, .y = 96 }, .duration = 0.5 },
+                .{ .offset = .{ .x = 32, .y = 96 }, .duration = 0.5 },
+            },
+        },
+    },
+    .input = .{
+        .{ .action = "left", .keys = .{ .LEFT, .A } },
+        .{ .action = "right", .keys = .{ .RIGHT, .D } },
+        .{ .action = "up", .keys = .{ .UP, .W } },
+        .{ .action = "down", .keys = .{ .DOWN, .S } },
+        .{ .action = "confirm", .keys = .{ .F, .SPACE, .ENTER } },
+        .{ .action = "cancel", .keys = .{ .Q, .ESCAPE, .MOUSE_RIGHT } },
+        .{ .action = "menu", .keys = .{.E} },
+        .{
+            .action = "useItem",
+            .keys = .{ .LEFT_CONTROL, .F },
+        },
+        .{ .action = "dropItem", .keys = .{.G} },
+        .{
+            .action = "buyItem",
+            .keys = .{ .LEFT_CONTROL, .F, .ENTER },
+        },
+        .{ .action = "help", .keys = .{.H} },
+        .{ .action = "debug", .keys = .{.X} },
+    },
+}

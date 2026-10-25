@@ -1,0 +1,109 @@
+.{
+    // 开始游戏
+    .{
+        .key = .start,
+        .target = .start,
+        .map = .home,
+        .facing = .down,
+    },
+    // 城市回家
+    .{
+        .key = .cityToHome,
+        .target = .homeToCity,
+        .map = .city,
+        .facing = .down,
+    },
+    // 家里出门
+    .{
+        .key = .homeToCity,
+        .target = .cityToHome,
+        .map = .home,
+        .facing = .up,
+    },
+    // 城市进入武器铺
+    .{
+        .key = .cityToWeaponShop,
+        .target = .weaponShopToCity,
+        .map = .city,
+        .facing = .down,
+    },
+    // 武器铺返回城市
+    .{
+        .key = .weaponShopToCity,
+        .target = .cityToWeaponShop,
+        .map = .weaponShop,
+        .facing = .up,
+    },
+    // 城市进入药店
+    .{
+        .key = .cityToPotionShop,
+        .target = .potionShopToCity,
+        .map = .city,
+        .facing = .down,
+    },
+    // 药店返回城市
+    .{
+        .key = .potionShopToCity,
+        .target = .cityToPotionShop,
+        .map = .potionShop,
+        .facing = .up,
+    },
+    // 城市进入酒店
+    .{
+        .key = .cityToHotel,
+        .target = .hotelToCity,
+        .map = .city,
+        .facing = .down,
+    },
+    // 酒店返回城市
+    .{
+        .key = .hotelToCity,
+        .target = .cityToHotel,
+        .map = .hotel,
+        .facing = .up,
+    },
+    // 城市前往森林
+    .{
+        .key = .cityToForest,
+        .target = .forestToCity,
+        .map = .city,
+        .facing = .up,
+        .gate = .{
+            .progress = 4,
+            .blockedDialogue = 5,
+            .reachedDialogue = 32,
+        },
+    },
+    // 森林返回城市
+    .{
+        .key = .forestToCity,
+        .target = .cityToForest,
+        .map = .forest,
+        .facing = .down,
+    },
+    // 进入战斗
+    .{
+        .key = .battle,
+        .target = .battle,
+        .map = .battle,
+        .facing = .down,
+    },
+    // 森林进入宫殿
+    .{
+        .key = .forestToPalace,
+        .target = .palaceToForest,
+        .map = .forest,
+        .facing = .up,
+        .gate = .{
+            .progress = 10,
+            .blockedDialogue = 37,
+        },
+    },
+    // 宫殿返回森林
+    .{
+        .key = .palaceToForest,
+        .target = .forestToPalace,
+        .map = .palace,
+        .facing = .up,
+    },
+}

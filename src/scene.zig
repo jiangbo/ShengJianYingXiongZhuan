@@ -1,94 +1,176 @@
 const std = @import("std");
 const zhu = @import("zhu");
+const ecs = @import("ecs");
 
 const window = zhu.window;
-const gfx = zhu.gfx;
 const camera = zhu.camera;
 
-const titleScene = @import("title.zig");
-const worldScene = @import("world.zig");
-const battleScene = @import("battle.zig");
+const title = @import("ui/title.zig");
+const battle = @import("battle/battle.zig");
+const component = @import("component.zig");
+const touch = zhu.extend.touch;
+const debug = zhu.extend.debug;
+const map = @import("map.zig");
+const storage = @import("storage.zig");
+const system = @import("system/system.zig");
+const ui = @import("ui/ui.zig");
+const zon = @import("zon.zig");
 
-const SceneType = enum { title, world, battle };
-var currentSceneType: SceneType = .title;
-var toSceneType: SceneType = .title;
+const Scene = enum { title, world, battle };
+const From = union(enum) { fromStart, fromBattle, fromLoad: u8 };
 
-var isHelp: bool = true;
-var isDebug: bool = false;
+var current: Scene = .title;
+var pending: Scene = .title;
+var from: From = undefined;
+var fade: Fade = .{};
 
-pub fn init() void {
-    window.initFont(.{
-        .font = @import("zon/font.zon"),
-        .texture = gfx.loadTexture("assets/font.png", .init(960, 960)),
-    });
+// 是否显示键盘操作说明，在初始化时根据输入环境决定。
+var isHelp: bool = undefined;
+var world: ecs.World = undefined;
+// 场景负责保存应用分配器，并向需要分配内存的模块传递。
+var allocator: zhu.Allocator = undefined;
 
-    camera.frameStats(true);
+pub fn init(allocator_: zhu.Allocator) void {
+    allocator = allocator_;
+    isHelp = !zhu.key.mayNotHave;
+    world = ecs.World.init(allocator_.raw);
+    // 调试功能键作为游戏默认配置，页面补丁可临时覆盖。
+    const extra = touch.pad.defaults.getPtr(.extra);
+    extra.key = .X;
+    extra.label = "调试";
+    touch.init(.pad);
+    title.init();
+    ui.init();
+    map.init(allocator_);
+    battle.init(allocator_);
 
-    camera.init(2000);
-
-    titleScene.init();
-    worldScene.init();
-    battleScene.init();
-
-    sceneCall("enter", .{});
+    title.enter();
+    fade.startIn();
 }
 
-pub fn changeScene(sceneType: SceneType) void {
-    toSceneType = sceneType;
-    fadeOut(doChangeScene);
+fn changeScene(next: Scene) void {
+    pending = next;
+    fade.startOut(doChangeScene);
 }
 
-pub fn changeMap() void {
-    fadeOut(worldScene.changeMap);
+fn changeWorld(next: From) void {
+    from = next;
+    changeScene(.world);
+}
+
+fn doChangeMap() void {
+    map.enter(&world, .portal);
 }
 
 fn doChangeScene() void {
-    sceneCall("exit", .{});
-    currentSceneType = toSceneType;
-    sceneCall("enter", .{});
+    var location: ?storage.Location = null;
+    if (pending == .world and from == .fromLoad) {
+        const load = from.fromLoad;
+        location = storage.load(&world, load) orelse return;
+    }
+
+    switch (current) {
+        .title => title.exit(),
+        .world => {},
+        .battle => battle.exit(&world),
+    }
+    current = pending;
+    switch (current) {
+        .title => title.enter(),
+        .world => enterWorld(location),
+        .battle => battle.enter(&world),
+    }
+}
+
+fn enterWorld(location: ?storage.Location) void {
+    ui.reset();
+    switch (from) {
+        .fromStart => {
+            storage.reset(&world);
+            map.enter(&world, .start);
+            world.addResource(component.dialog.Dialog{
+                .lines = zon.dialogues[2].lines,
+            });
+        },
+        .fromBattle => {},
+        .fromLoad => map.enter(&world, .{
+            .location = location.?,
+        }),
+    }
+    zhu.audio.playMusic("audio/back.mid");
 }
 
 pub fn update(delta: f32) void {
-    window.keepAspectRatio();
-    if (window.isKeyRelease(.H)) isHelp = !isHelp;
-    if (window.isKeyRelease(.X)) isDebug = !isDebug;
+    if (zon.input.released(.help)) isHelp = !isHelp;
+    if (zon.input.released(.debug)) debug.enabled = !debug.enabled;
 
-    if (window.isKeyDown(.LEFT_ALT) and window.isKeyRelease(.ENTER)) {
+    if (zhu.key.held(.LEFT_ALT) and zhu.key.released(.ENTER)) {
         return window.toggleFullScreen();
     }
 
-    if (fadeTimer) |*timer| {
-        // 存在淡入淡出效果，地图和角色暂时不更新。
-        if (timer.isRunningAfterUpdate(delta)) return;
-        if (isFadeIn) {
-            fadeTimer = null;
-        } else {
-            if (fadeOutEndCallback) |callback| callback();
-            isFadeIn = true;
-            timer.restart();
+    if (fade.update(delta)) return;
+    switch (current) {
+        .title => if (title.update(delta)) |req| switch (req) {
+            .fadeOut => |done| fade.startOut(done),
+            .start => changeWorld(.fromStart),
+            .load => |slot| changeWorld(.{ .fromLoad = slot }),
+        },
+        .world => updateWorld(delta),
+        .battle => if (battle.update(&world, delta)) |request| {
+            switch (request) {
+                .world => changeWorld(.fromBattle),
+                .title => changeScene(.title),
+            }
+        },
+    }
+}
+
+fn updateWorld(delta: f32) void {
+    // 上一帧的场景请求在本帧开始处理，切图优先于战斗。
+    var sceneRequest: ?component.event.Request = null;
+    for (world.getEvent(component.event.Request)) |request| {
+        sceneRequest = request;
+        if (request == .map) break;
+    }
+    world.clearEvent(component.event.Request);
+
+    if (sceneRequest) |request| switch (request) {
+        .map => return fade.startOut(doChangeMap),
+        .battle => return changeScene(.battle),
+    };
+
+    if (ui.update(&world, delta)) |request| {
+        switch (request) {
+            .block => {},
+            .battle => changeScene(.battle),
+            .load => |slot| changeWorld(.{ .fromLoad = slot }),
+            .save => |slot| storage.save(&world, slot),
+            .title => changeScene(.title),
         }
         return;
     }
-    sceneCall("update", .{delta});
+
+    system.update(&world, delta);
 }
 
 pub fn draw() void {
-    camera.beginDraw();
-    defer camera.endDraw();
-
-    sceneCall("draw", .{});
-
-    // 将文字先绘制上，后面的淡入淡出才会生效。
-    camera.flushTextureAndText();
-    if (fadeTimer) |*timer| {
-        camera.mode = .local;
-        defer camera.mode = .world;
-        const percent = timer.elapsed / timer.duration;
-        const alpha = if (isFadeIn) 1 - percent else percent;
-        camera.drawRect(.init(.zero, window.logicSize), .{ .w = alpha });
-        camera.flushTexture();
+    switch (current) {
+        .title => title.draw(),
+        .world => {
+            map.draw();
+            system.render.draw(&world);
+            ui.draw(&world);
+        },
+        .battle => battle.draw(&world),
     }
-    if (isHelp) drawHelpInfo() else if (isDebug) drawDebugInfo();
+
+    fade.draw();
+    // 摇杆和功能按钮绘制在遮罩上方，不参与场景淡入淡出。
+    touch.draw();
+
+    camera.push(.window);
+    defer camera.pop();
+    if (isHelp) drawHelpInfo() else if (debug.enabled) drawDebugInfo();
 }
 
 fn drawHelpInfo() void {
@@ -97,94 +179,69 @@ fn drawHelpInfo() void {
         \\上：W，下：S，左：A，右：D
         \\确定：F，取消：Q，菜单：E
         \\帮助：H  按一次打开，再按一次关掉
-        \\作者：jiangbo4444
     ;
-    var iterator = std.unicode.Utf8View.initUnchecked(text).iterator();
-    var count: u32 = 0;
-    while (iterator.nextCodepoint()) |code| {
-        if (code == '\n') continue;
-        count += 1;
-    }
-    debutTextCount = count;
 
-    camera.drawColorText(text, .init(10, 5), .green);
+    zhu.text.msdf.begin();
+    defer zhu.text.msdf.end();
+    zhu.text.draw(text, .xy(10, 5), .{ .color = .green });
 }
 
-var debutTextCount: u32 = 0;
 fn drawDebugInfo() void {
-    var buffer: [1024]u8 = undefined;
-    const format =
-        \\后端：{s}
-        \\帧率：{}
-        \\帧时：{d:.2}
-        \\用时：{d:.2}
-        \\显存：{}
-        \\常量：{}
-        \\绘制：{}
-        \\图片：{}
-        \\文字：{}
-        \\内存：{}
-        \\鼠标：{d:.2}，{d:.2}
-        \\角色：{d:.2}，{d:.2}
-        \\相机：{d:.2}，{d:.2}
-    ;
-
-    const stats = camera.queryFrameStats();
-    const player = @import("player.zig");
-    const text = zhu.format(&buffer, format, .{
-        @tagName(camera.queryBackend()),
-        window.frameRate,
-        window.frameDeltaPerSecond,
-        window.usedDeltaPerSecond,
-        stats.size_append_buffer + stats.size_update_buffer,
-        stats.size_apply_uniforms,
-        stats.num_draw,
-        camera.imageDrawCount(),
-        // Debug 信息本身的次数也应该统计进去
-        camera.textDrawCount() + debutTextCount,
-        window.countingAllocator.used,
-        window.mousePosition.x,
-        window.mousePosition.y,
-        player.position.x,
-        player.position.y,
-        camera.position.x,
-        camera.position.y,
-    });
-
-    var iterator = std.unicode.Utf8View.initUnchecked(text).iterator();
-    var count: u32 = 0;
-    while (iterator.nextCodepoint()) |code| {
-        if (code == '\n') continue;
-        count += 1;
-    }
-    debutTextCount = count;
-
-    camera.drawColorText(text, .init(10, 5), .green);
-}
-
-var fadeTimer: ?window.Timer = null;
-var isFadeIn: bool = false;
-var fadeOutEndCallback: ?*const fn () void = null;
-
-pub fn fadeIn() void {
-    isFadeIn = true;
-    fadeTimer = .init(1);
-}
-
-pub fn fadeOut(callback: ?*const fn () void) void {
-    isFadeIn = false;
-    fadeTimer = .init(1);
-    fadeOutEndCallback = callback;
+    zhu.text.msdf.begin();
+    defer zhu.text.msdf.end();
+    debug.draw(&.{});
 }
 
 pub fn deinit() void {
-    sceneCall("deinit", .{});
+    world.deinit();
+    map.deinit(allocator);
+    zhu.audio.setMusicState(.stopped);
+    battle.deinit(allocator);
 }
 
-fn sceneCall(comptime function: []const u8, args: anytype) void {
-    switch (currentSceneType) {
-        .title => window.call(titleScene, function, args),
-        .world => window.call(worldScene, function, args),
-        .battle => window.call(battleScene, function, args),
+// 管理场景切换时的淡入淡出状态。
+const Fade = struct {
+    timer: ?zhu.Timer = null,
+    isIn: bool = false,
+    done: ?*const fn () void = null,
+
+    fn startIn(self: *Fade) void {
+        self.timer = .init(1);
+        self.isIn = true;
+        self.done = null;
     }
-}
+
+    fn startOut(self: *Fade, done: ?*const fn () void) void {
+        // 淡出期间界面停止更新，先释放它留下的虚拟按键。
+        touch.reset();
+        self.timer = .init(1);
+        self.isIn = false;
+        self.done = done;
+    }
+
+    // 推进淡入淡出，并返回本帧是否由它占用。
+    fn update(self: *Fade, delta: f32) bool {
+        const timer = if (self.timer) |*v| v else return false;
+        if (timer.updateRunning(delta)) return true;
+
+        if (self.isIn) {
+            self.timer = null;
+        } else {
+            if (self.done) |done| done();
+            self.startIn();
+        }
+        return true;
+    }
+
+    fn draw(self: *Fade) void {
+        const timer = if (self.timer) |*v| v else return;
+        camera.push(.window);
+        defer camera.pop();
+
+        const percent = timer.progress();
+        const alpha = if (self.isIn) 1 - percent else percent;
+        zhu.batch.drawRect(.init(.zero, camera.size), .{
+            .color = .rgba(0, 0, 0, alpha),
+        });
+    }
+};
