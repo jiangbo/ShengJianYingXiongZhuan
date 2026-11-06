@@ -13,7 +13,7 @@ pub const Request = enum {
     close,
 };
 
-var menu: zhu.extend.widget.Menu = @import("pause.zon");
+var menu: zhu.widget.Menu = @import("pause.zon");
 
 // 打开暂停菜单时将光标重置回第一项。
 pub fn open() Popup {
@@ -32,5 +32,6 @@ pub fn update() ?Request {
 }
 
 pub fn draw() void {
-    menu.draw();
+    menu.drawImage();
+    menu.drawText();
 }

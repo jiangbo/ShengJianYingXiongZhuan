@@ -15,16 +15,14 @@ const Button = enum { start, load, exit };
 const State = enum { menu, save, intro };
 
 var background: zhu.Image = undefined;
-var menu: zhu.extend.widget.Menu = @import("title.zon");
+var menu: zhu.widget.Menu = @import("title.zon");
 var state: State = .menu;
 
 // 开场文字的逐字显示状态。
 var introTyping: Typing = .{ .content = introText };
 
 pub fn init() void {
-    background = zhu.assets.loadImage("title.png", .{
-        .size = .xy(640, 480),
-    });
+    background = zhu.loadImage("title.png", .xy(640, 480), .{});
 }
 
 pub fn enter() void {
@@ -80,7 +78,8 @@ pub fn draw() void {
     switch (state) {
         .menu => {
             zhu.batch.drawImage(background, .zero, .{});
-            menu.draw();
+            menu.drawImage();
+            menu.drawText();
         },
         .save => {
             zhu.batch.drawImage(background, .zero, .{});
@@ -106,7 +105,5 @@ const introText =
 ;
 
 fn drawIntro() void {
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
     zhu.text.draw(introTyping.text(), .xy(40, 100), .{});
 }

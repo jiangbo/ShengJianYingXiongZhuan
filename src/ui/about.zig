@@ -7,7 +7,6 @@ const Popup = @import("shared.zig").Popup;
 var texture: zhu.Image = undefined;
 
 var roll: bool = false;
-var timer: zhu.Timer = .init(0.05);
 
 pub fn init() void {
     texture = zhu.getImage("sbar.png").?;
@@ -18,7 +17,6 @@ pub fn open() Popup {
     roll = false;
     rollOffset = 0;
     end = false;
-    timer.restart();
     return .about;
 }
 
@@ -30,15 +28,11 @@ pub fn update(delta: f32) bool {
 
     if (!roll) {
         // 任意键、鼠标按钮或触屏松开后开始滚动。
-        if (zhu.input.press.released) roll = true;
+        if (zhu.window.press.released) roll = true;
         return false;
     }
 
-    if (timer.updateFinished(delta)) {
-        if (end) return false;
-        timer.restart();
-        rollOffset += 1;
-    }
+    if (!end) rollOffset += 20 * delta;
     return false;
 }
 
@@ -47,9 +41,6 @@ pub fn draw() void {
     zhu.batch.drawImage(texture, position.addXY(-10, -10), .{});
 
     if (roll) return drawRoll(position);
-
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
 
     var text: []const u8 = "圣剑英雄传--英雄救美（测试版）";
     zhu.text.draw(text, position.addXY(62, 17), .{ .color = .black });
@@ -161,27 +152,32 @@ const intro =
     \\
 ;
 
-var rollOffset: usize = 0;
-const lineHeight = 26;
+var rollOffset: f32 = 0;
 var start: usize = 0;
 var end: bool = false;
 
 fn drawRoll(position: zhu.Vector2) void {
-    const size = zhu.Vector2.xy(380, 280);
-    zhu.batch.useScissor(.init(position.addXY(20, 12), size));
+    const area = zhu.Rect.init(position.addXY(20, 12), .xy(380, 280));
+    const lineHeight = zhu.text.lineHeight(.{});
+    zhu.batch.useScissor(area);
     defer zhu.batch.useScissor(null);
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
 
-    const offsetY: f32 = @floatFromInt(rollOffset % lineHeight);
+    const offsetY = @mod(rollOffset, lineHeight);
+    // 保留累计距离的小数，只将最终绘制起点对齐到实际像素。
+    const scale = zhu.window.scale.y;
+    var textPosition = position.addXY(25, -offsetY);
+    textPosition.y = @round(textPosition.y * scale) / scale;
 
     if (end) {
-        zhu.text.draw(intro[start..], position.addXY(25, -offsetY), .{});
+        zhu.text.draw(intro[start..], textPosition, .{});
         return;
     }
 
-    const startLine = rollOffset / lineHeight;
-    var line: u8 = 0;
+    const startLine: usize = @intFromFloat(@floor(rollOffset / lineHeight));
+    // 多绘制底部一行，由裁剪逐渐露出，避免补行时整行跳入。
+    const height = area.max().y - textPosition.y;
+    const count: usize = @intFromFloat(@ceil(height / lineHeight));
+    var line: usize = 0;
 
     var iter = std.unicode.Utf8View.initUnchecked(intro).iterator();
     if (startLine == 0)
@@ -196,8 +192,8 @@ fn drawRoll(position: zhu.Vector2) void {
     while (iter.nextCodepoint()) |unicode| {
         if (unicode != '\n') continue;
         line += 1;
-        if (line >= startLine + 12) break;
+        if (line >= startLine + count + 1) break;
     } else end = true;
 
-    zhu.text.draw(intro[start..iter.i], position.addXY(25, -offsetY), .{});
+    zhu.text.draw(intro[start..iter.i], textPosition, .{});
 }

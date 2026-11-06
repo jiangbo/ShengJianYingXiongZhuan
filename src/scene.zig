@@ -33,7 +33,7 @@ var allocator: zhu.Allocator = undefined;
 pub fn init(allocator_: zhu.Allocator) void {
     allocator = allocator_;
     isHelp = !zhu.key.mayNotHave;
-    world = ecs.World.init(allocator_.raw);
+    world = ecs.World.init(allocator_);
     // 调试功能键作为游戏默认配置，页面补丁可临时覆盖。
     const extra = touch.pad.defaults.getPtr(.extra);
     extra.key = .X;
@@ -166,11 +166,14 @@ pub fn draw() void {
 
     fade.draw();
     // 摇杆和功能按钮绘制在遮罩上方，不参与场景淡入淡出。
-    touch.draw();
+    touch.begin();
+    touch.drawImage();
+    touch.drawText();
+    touch.end();
 
     camera.push(.window);
     defer camera.pop();
-    if (isHelp) drawHelpInfo() else if (debug.enabled) drawDebugInfo();
+    if (isHelp) drawHelpInfo() else debug.draw(.{});
 }
 
 fn drawHelpInfo() void {
@@ -181,15 +184,7 @@ fn drawHelpInfo() void {
         \\帮助：H  按一次打开，再按一次关掉
     ;
 
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
     zhu.text.draw(text, .xy(10, 5), .{ .color = .green });
-}
-
-fn drawDebugInfo() void {
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
-    debug.draw(&.{});
 }
 
 pub fn deinit() void {
@@ -239,9 +234,10 @@ const Fade = struct {
         defer camera.pop();
 
         const percent = timer.progress();
-        const alpha = if (self.isIn) 1 - percent else percent;
+        // 淡入时遮罩逐渐透明，淡出时逐渐不透明。
+        const opacity = if (self.isIn) 1 - percent else percent;
         zhu.batch.drawRect(.init(.zero, camera.size), .{
-            .color = .rgba(0, 0, 0, alpha),
+            .color = zhu.Color.black.withAlpha(opacity),
         });
     }
 };

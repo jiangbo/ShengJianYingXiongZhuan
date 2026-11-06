@@ -14,29 +14,48 @@
 
 <https://jiangbo.online/game/sjyxz/index.html>
 
+## 系统字体
+
+游戏使用系统字体显示文字，不随游戏附带字体。Windows 使用 DirectWrite，
+macOS 使用 Core Text，Linux 使用 Fontconfig 和 FreeType。实际运行还取决于
+系统版本、图形驱动及其他运行库。
+
+Linux 需要 Fontconfig、FreeType 和支持简体中文的字体。可以用以下命令安装：
+
+```sh
+# Debian / Ubuntu
+sudo apt install libfontconfig1 libfreetype6 fonts-noto-cjk
+
+# Fedora
+sudo dnf install fontconfig freetype google-noto-sans-cjk-fonts
+
+# Arch Linux
+sudo pacman -S fontconfig freetype2 noto-fonts-cjk
+```
+
+程序由 Fontconfig 选择字体；安装后仍显示方框时，可以用以下命令查看匹配结果：
+
+```sh
+fc-match 'sans-serif:lang=zh-cn'
+```
+
 ## 构建
 
 使用 Zig 0.17 开发版，依赖的引擎版本固定在 `build.zig.zon` 中。
-字体原文件使用 Git LFS 管理。安装 Git LFS 后，拉取字体并构建：
+仓库已包含生成好的运行资源，可以直接构建和运行：
 
 ```sh
-git lfs install
-git lfs pull
 zig build
 zig build run
 ```
 
-Linux 构建需要 ALSA、OpenGL 和 X11 的开发库。
-运行资源在 `assets`，原始素材在 `raw-assets`，生成的字体数据在
-`src/zon/font.zon`，这些文件均随仓库提交。
-
-修改原始素材后，可按需重新生成资源：
+Linux 构建需要 ALSA、OpenGL、X11、Fontconfig 和 FreeType 的开发库；
+运行时也需要 Fontconfig 和 FreeType。原始素材在 `raw-assets`，运行资源在
+`assets`。修改原始素材后，可以重新生成：
 
 ```sh
 zig build atlas
-zig build msdf
 zig build audio
 ```
 
-字体和音频生成分别需要 `msdf-atlas-gen` 和 `ffmpeg`，工具须在 PATH 中。
-`0.1.0` 标签保留迁移前的项目版本。
+音频转换需要 `ffmpeg`，工具须在 PATH 中。

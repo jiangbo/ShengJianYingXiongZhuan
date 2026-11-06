@@ -44,7 +44,7 @@ pub const Phase = enum {
     title,
 };
 
-pub var menu: zhu.extend.widget.Menu = @import("battle.zon");
+pub var menu: zhu.widget.Menu = @import("battle.zon");
 
 pub const Menu = struct {
     const Command = enum { attack, status, item, escape };
@@ -108,8 +108,6 @@ pub const Wait = struct {
     pub fn draw(_: *ecs.World) void {
         if (tip.len == 0) return;
 
-        zhu.text.msdf.begin();
-        defer zhu.text.msdf.end();
         zhu.text.draw(tip, .xy(290, 210), .{});
     }
 };

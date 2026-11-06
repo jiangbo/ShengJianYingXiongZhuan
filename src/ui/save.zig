@@ -7,7 +7,7 @@ pub const Mode = enum { load, save };
 pub const Request = union(enum) { close, load: u8, save: u8 };
 
 var mode: Mode = .load;
-var menu: zhu.extend.widget.Menu = @import("save.zon");
+var menu: zhu.widget.Menu = @import("save.zon");
 
 // 打开指定用途的存档槽菜单。
 pub fn open(next: Mode) Popup {
@@ -31,5 +31,6 @@ pub fn update() ?Request {
 }
 
 pub fn draw() void {
-    menu.draw();
+    menu.drawImage();
+    menu.drawText();
 }

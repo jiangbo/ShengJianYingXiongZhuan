@@ -17,7 +17,7 @@ pub fn update(world: *ecs.World, delta: f32) void {
         const sourceIndex: u8 = @backingInt(facing);
 
         var changed = animation.sourceIndex != sourceIndex;
-        if (changed) animation.play(sourceIndex);
+        if (changed) animation.playIndex(sourceIndex);
         if (world.has(entity, WantMove)) {
             if (animation.update(delta) != null) changed = true;
         }
@@ -27,7 +27,6 @@ pub fn update(world: *ecs.World, delta: f32) void {
 
     const position = world.getIdentity(Player, Position).?;
     zhu.camera.directFollow(position);
-    zhu.camera.roundMainPosition();
 }
 
 pub fn draw(world: *ecs.World) void {
@@ -37,8 +36,7 @@ pub fn draw(world: *ecs.World) void {
     while (query.next()) |entity| {
         const position = query.get(entity, Position);
         const sprite = query.get(entity, Sprite);
-        const drawPosition = zhu.camera.round(position, null);
-        zhu.batch.drawImage(sprite.image, drawPosition, .{
+        zhu.batch.drawImage(sprite.image, position, .{
             .anchor = sprite.anchor,
         });
     }

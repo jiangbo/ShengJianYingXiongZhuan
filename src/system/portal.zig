@@ -65,13 +65,13 @@ test "选择玩家当前所在的传送区域" {
     const player = world.createIdentity(Player);
     world.addAll(player, .{
         Position.zero,
-        Collider.init(.zero, .square(16)),
+        Collider.init(.zero, .all(16)),
     });
 
     const portal = world.createEntity();
     world.add(portal, Portal{
         .key = .homeToCity,
-        .area = .init(.zero, .square(32)),
+        .area = .init(.zero, .all(32)),
     });
 
     update(&world);
@@ -90,13 +90,13 @@ test "未击败巫批时宫殿入口显示受阻对话" {
     const player = world.createIdentity(Player);
     world.addAll(player, .{
         Position.zero,
-        Collider.init(.zero, .square(16)),
+        Collider.init(.zero, .all(16)),
     });
 
     const portal = world.createEntity();
     world.add(portal, Portal{
         .key = .forestToPalace,
-        .area = .init(.zero, .square(32)),
+        .area = .init(.zero, .all(32)),
     });
 
     update(&world);
@@ -122,13 +122,13 @@ test "到达城市出口条件时触发大魔王剧情" {
     const player = world.createIdentity(Player);
     world.addAll(player, .{
         Position.zero,
-        Collider.init(.zero, .square(16)),
+        Collider.init(.zero, .all(16)),
     });
 
     const portal = world.createEntity();
     world.add(portal, Portal{
         .key = .cityToForest,
-        .area = .init(.zero, .square(32)),
+        .area = .init(.zero, .all(32)),
     });
 
     update(&world);

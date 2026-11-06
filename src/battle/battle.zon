@@ -12,19 +12,19 @@
             } },
             .normal = .{
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
         },
@@ -37,19 +37,19 @@
             } },
             .normal = .{
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
         },
@@ -62,19 +62,19 @@
             } },
             .normal = .{
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
         },
@@ -87,19 +87,19 @@
             } },
             .normal = .{
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
                 .text = .{
-                    .color = .{ .r = 1, .a = 1 },
+                    .color = .{ .r = 255, .a = 255 },
                 },
             },
         },

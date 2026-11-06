@@ -84,7 +84,7 @@ pub fn init(allocator: zhu.Allocator) void {
         .area = .init(.zero, data.grid.size()),
     };
     mapWindow.vertices.ensureTotalCapacity(
-        allocator.raw,
+        allocator,
         data.grid.count() * 2,
     ) catch zhu.oom();
     mapWindow.rebuildImage(
@@ -97,7 +97,7 @@ pub fn init(allocator: zhu.Allocator) void {
 
 // 释放战斗地图长期持有的顶点。
 pub fn deinit(allocator: zhu.Allocator) void {
-    mapWindow.vertices.deinit(allocator.raw);
+    mapWindow.vertices.deinit(allocator);
 }
 
 // 读取选定的敌人并进入战斗场景。
@@ -114,7 +114,6 @@ pub fn enter(world: *ecs.World) void {
 pub fn exit(world: *ecs.World) void {
     const position = world.getIdentity(Player, Position).?;
     zhu.camera.directFollow(position);
-    zhu.camera.roundMainPosition();
 }
 
 // 切换阶段并初始化新阶段。
@@ -187,8 +186,6 @@ pub fn draw(world: *ecs.World) void {
     const enemyPhoto = zon.Actor.image(shared.enemyKey, .down);
     zhu.batch.drawImage(enemyPhoto, position.addXY(265, 26), .{});
 
-    zhu.text.msdf.begin();
-
     const stats = world.getResourcePtr(storage.Stats).?;
     const format = "生命：{:8}\n攻击：{:8}\n防御：{:8}\n等级：{:8}";
     var text = zhu.format(&buffer, format, .{
@@ -206,8 +203,10 @@ pub fn draw(world: *ecs.World) void {
         shared.enemy.level,
     });
     zhu.text.draw(text, position.addXY(305, 5), .{ .color = .black });
-    zhu.text.msdf.end();
 
-    shared.menu.draw();
+    shared.menu.drawImage();
+
+    shared.menu.drawText();
+
     phase.draw(world);
 }

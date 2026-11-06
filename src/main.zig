@@ -3,21 +3,22 @@ const zhu = @import("zhu");
 
 const scene = @import("scene.zig");
 
-var vertexBuffer: []zhu.batch.Vertex = undefined;
+// 合批命令使用固定缓冲区，由应用持有。
 var commandBuffer: [128]zhu.batch.Command = undefined;
 var soundBuffer: [20]zhu.audio.Sound = undefined;
 
 pub fn init(allocator: zhu.Allocator) void {
-    vertexBuffer = allocator.alloc(zhu.batch.Vertex, 4096);
+    // 仅在渲染时对齐相机，逻辑位置保留小数。
+    zhu.camera.roundPosition = true;
     // 运行时窗口图标使用米白底角色图。
     zhu.window.useWindowIcon("icon.png");
     // 音频输出与生成的 OGG 使用相同采样率。
     zhu.audio.init(&soundBuffer, .{ .sample_rate = 11025 });
-    zhu.assets.loadAtlas(@import("zon/atlas.zon"), .nearest);
-    zhu.batch.init(vertexBuffer, &commandBuffer);
+    // 图片和字形共用纹理数组，预留两层存放字形。
+    const atlas = zhu.assets.atlas.load(@import("zon/atlas.zon"), 2, .nearest);
+    zhu.batch.init(&commandBuffer);
 
-    zhu.text.msdf.init(@import("zon/font.zon"));
-    zhu.text.changeFontSize(18);
+    zhu.text.init(.{ .size = 18, .atlas = atlas });
 
     scene.init(allocator);
 }
@@ -25,24 +26,21 @@ pub fn init(allocator: zhu.Allocator) void {
 pub fn frame(delta: f32) void {
     scene.update(delta);
 
-    zhu.batch.beginDraw();
-    zhu.batch.useTarget(.black, .{});
+    zhu.batch.beginDraw(.black, .{});
     scene.draw();
     zhu.batch.endDraw();
 }
 
-pub fn deinit(allocator: zhu.Allocator) void {
+pub fn deinit(_: zhu.Allocator) void {
     scene.deinit();
-    allocator.free(vertexBuffer);
+    zhu.text.dynamic.deinit();
 }
 
 pub fn main(initInfo: std.process.Init) void {
     // 初始化引擎和应用存储，再启动窗口。
     zhu.init(initInfo);
     zhu.extend.storage.init(initInfo, "sjyxz");
-    zhu.window.run(.{
-        .title = "英雄救美",
-        .size = .xy(640, 480),
+    zhu.window.run("英雄救美", .xy(640, 480), .{
         .scaleEnum = .fit,
     });
 }

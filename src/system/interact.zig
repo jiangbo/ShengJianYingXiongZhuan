@@ -59,8 +59,8 @@ fn playerArea(world: *ecs.World) zhu.Rect {
 }
 
 test "交互系统选择玩家正前方最近的实体" {
-    zhu.input.reset();
-    defer zhu.input.reset();
+    zhu.window.resetInput();
+    defer zhu.window.resetInput();
 
     var world = ecs.World.init(std.testing.allocator);
     defer world.deinit();
@@ -87,7 +87,7 @@ test "交互系统选择玩家正前方最近的实体" {
     });
 
     zhu.key.set(.F, true);
-    zhu.input.update();
+    zhu.window.endInput();
     zhu.key.set(.F, false);
     update(&world);
 

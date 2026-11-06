@@ -76,7 +76,7 @@ pub const Location = struct {
     facing: Facing,
 };
 
-// JSON 存档的完整结构。
+// 存档的完整结构。
 const Record = struct {
     location: Location,
     progress: Progress = .{},
@@ -106,17 +106,15 @@ pub fn exists(slot: u8) bool {
 pub fn load(world: *ecs.World, slot: u8) ?Location {
     var buffer: [20]u8 = undefined;
     const path = zhu.formatZ(&buffer, "save/{d}.sav", .{slot});
-    var loaded = zhu.extend.storage.readXChaCha(
-        Record,
-        path,
-        "ShengJianYingXiongZhuanSaveKey!!".*,
-    ) catch |err| {
+    var data: [512]u8 = undefined;
+    const bytes = zhu.extend.storage.readBuffer(path, &data) catch |err| {
         std.log.err("load {s} failed: {}", .{ path, err });
         return null;
     };
-    defer loaded.deinit();
-
-    const record = loaded.value;
+    const record = readRecord(bytes) catch |err| {
+        std.log.err("load {s} failed: {}", .{ path, err });
+        return null;
+    };
     world.addResource(record.progress);
     world.addResource(record.stats);
     world.addResource(record.inventory);
@@ -143,12 +141,73 @@ pub fn save(world: *ecs.World, slot: u8) void {
     };
     var buffer: [20]u8 = undefined;
     const path = zhu.formatZ(&buffer, "save/{d}.sav", .{slot});
-    zhu.extend.storage.writeXChaCha(
-        path,
-        record,
-        "ShengJianYingXiongZhuanSaveKey!!".*,
-    ) catch |err| {
+    var data: [512]u8 = undefined;
+    var writer = std.Io.Writer.fixed(&data);
+    writeRecord(&writer, record) catch unreachable;
+    zhu.extend.storage.writeAll(path, writer.buffered()) catch |err| {
         std.log.err("save {s} failed: {}", .{ path, err });
         world.addEvent(Tip{ .text = "保存失败" });
     };
+}
+
+// 数值使用小端序，物品和角色使用配置中的枚举编号。
+fn writeRecord(writer: *std.Io.Writer, record: Record) !void {
+    try writer.writeAll("SJY1");
+    try writer.writeByte(@intCast(@backingInt(record.location.map)));
+    try writer.writeInt(u32, @bitCast(record.location.position.x), .little);
+    try writer.writeInt(u32, @bitCast(record.location.position.y), .little);
+    try writer.writeByte(@intCast(@backingInt(record.location.facing)));
+    try writer.writeByte(record.progress.value);
+    try writer.writeInt(u16, record.stats.level, .little);
+    try writer.writeInt(u16, record.stats.exp, .little);
+    try writer.writeInt(i32, record.stats.health, .little);
+    try writer.writeInt(i32, record.stats.maxHealth, .little);
+    try writer.writeInt(u16, record.stats.attack, .little);
+    try writer.writeInt(u16, record.stats.defend, .little);
+    try writer.writeInt(u16, record.stats.agility, .little);
+    try writer.writeInt(u32, record.inventory.money, .little);
+    for (record.inventory.items) |item| {
+        try writer.writeByte(if (item) |key| @intCast(@backingInt(key)) else 255);
+    }
+    for (0..zon.Chest.list.len) |id| {
+        try writer.writeByte(@intFromBool(record.openedChests.isSet(id)));
+    }
+    for (std.enums.values(zon.Actor.Key)) |key| {
+        try writer.writeByte(@intFromBool(record.deadActors.contains(key)));
+    }
+}
+
+fn readRecord(bytes: []const u8) !Record {
+    var reader = std.Io.Reader.fixed(bytes);
+    if (!std.mem.eql(u8, try reader.take(4), "SJY1")) return error.InvalidSave;
+    var record: Record = .{ .location = undefined };
+    record.location.map = std.enums.fromInt(zon.Map.Key, try reader.takeByte()) orelse
+        return error.InvalidSave;
+    record.location.position.x = @bitCast(try reader.takeInt(u32, .little));
+    record.location.position.y = @bitCast(try reader.takeInt(u32, .little));
+    record.location.facing = std.enums.fromInt(Facing, try reader.takeByte()) orelse
+        return error.InvalidSave;
+    record.progress.value = try reader.takeByte();
+    record.stats.level = try reader.takeInt(u16, .little);
+    record.stats.exp = try reader.takeInt(u16, .little);
+    record.stats.health = try reader.takeInt(i32, .little);
+    record.stats.maxHealth = try reader.takeInt(i32, .little);
+    record.stats.attack = try reader.takeInt(u16, .little);
+    record.stats.defend = try reader.takeInt(u16, .little);
+    record.stats.agility = try reader.takeInt(u16, .little);
+    record.inventory.money = try reader.takeInt(u32, .little);
+    for (&record.inventory.items) |*item| {
+        const value = try reader.takeByte();
+        item.* = if (value == 255)
+            null
+        else
+            std.enums.fromInt(zon.Item.Key, value) orelse return error.InvalidSave;
+    }
+    for (0..zon.Chest.list.len) |id| {
+        if (try reader.takeByte() != 0) record.openedChests.set(id);
+    }
+    for (std.enums.values(zon.Actor.Key)) |key| {
+        if (try reader.takeByte() != 0) record.deadActors.insert(key);
+    }
+    return record;
 }

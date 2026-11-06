@@ -22,7 +22,7 @@ pub fn open() Popup {
 pub fn update(world: *ecs.World) ?Request {
     if (zon.input.anyReleased(&.{ .menu, .cancel })) return .close;
 
-    if (showStats and zhu.input.press.released) {
+    if (showStats and zhu.window.press.released) {
         showStats = false;
     }
 
@@ -62,9 +62,6 @@ pub fn draw(world: *ecs.World) void {
     const inventory = world.getResourcePtr(storage.Inventory).?;
     const pos = item.position;
     item.draw(&inventory.items, index);
-
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
 
     if (showStats) {
         const shadow: zhu.text.Option = .{ .color = .black };

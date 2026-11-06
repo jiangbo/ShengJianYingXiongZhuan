@@ -30,7 +30,7 @@ pub fn update(world: *ecs.World) bool {
         return true;
     }
 
-    if (soldKey != null and zhu.input.press.released) {
+    if (soldKey != null and zhu.window.press.released) {
         soldKey = null;
     }
 
@@ -53,9 +53,6 @@ pub fn draw(world: *ecs.World) void {
     const inventory = world.getResourcePtr(storage.Inventory).?;
     const pos = item.position;
     item.draw(&inventory.items, index);
-
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
 
     var buffer: [50]u8 = undefined;
     if (soldKey) |key| {

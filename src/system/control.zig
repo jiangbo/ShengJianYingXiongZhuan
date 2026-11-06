@@ -50,8 +50,8 @@ fn chooseFacing(direction: zhu.Vector2) ?Facing {
 }
 
 test "斜向移动使用最后按下的方向" {
-    zhu.input.reset();
-    defer zhu.input.reset();
+    zhu.window.resetInput();
+    defer zhu.window.resetInput();
 
     var world = ecs.World.init(std.testing.allocator);
     defer world.deinit();
@@ -66,7 +66,7 @@ test "斜向移动使用最后按下的方向" {
     try std.testing.expect(wantMove.value.approxEqual(.xy(0, -1)));
     try std.testing.expectEqual(Facing.up, facing);
 
-    zhu.input.update();
+    zhu.window.endInput();
     zhu.key.set(.D, true);
     update(&world);
     facing = world.get(entity, Facing).?;
@@ -74,7 +74,7 @@ test "斜向移动使用最后按下的方向" {
     try std.testing.expectApproxEqAbs(1, wantMove.value.length(), 0.001);
     try std.testing.expectEqual(Facing.right, facing);
 
-    zhu.input.update();
+    zhu.window.endInput();
     zhu.key.set(.D, false);
     update(&world);
     facing = world.get(entity, Facing).?;
@@ -82,7 +82,7 @@ test "斜向移动使用最后按下的方向" {
     try std.testing.expect(wantMove.value.approxEqual(.xy(0, -1)));
     try std.testing.expectEqual(Facing.up, facing);
 
-    zhu.input.update();
+    zhu.window.endInput();
     zhu.key.set(.W, false);
     update(&world);
     try std.testing.expect(!world.has(entity, WantMove));

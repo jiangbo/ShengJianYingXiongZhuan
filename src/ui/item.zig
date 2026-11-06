@@ -42,7 +42,6 @@ pub fn draw(items: []const ?zon.Item.Key, index: usize) void {
     var buffer: [32]u8 = undefined;
     if (items[index]) |key| {
         const item = zon.Item.get(key);
-        zhu.text.msdf.begin();
 
         zhu.text.draw(item.name, position.addXY(70, 20), .{});
         zhu.text.draw(" (价值：", position.addXY(180, 20), .{});
@@ -64,7 +63,6 @@ pub fn draw(items: []const ?zon.Item.Key, index: usize) void {
         zhu.text.draw(item.about, position.addXY(170, 60), .{
             .color = .yellow,
         });
-        zhu.text.msdf.end();
     }
 
     const itemBackground = getIcon(0);

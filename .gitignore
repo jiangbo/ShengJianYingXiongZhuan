@@ -1,7 +1,4 @@
-.claude
 .zig-cache
 zig-out
 zig-pkg
-save/
-/AGENTS.md
-/notes.md
+assets

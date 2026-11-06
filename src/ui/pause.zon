@@ -14,10 +14,10 @@
                 .size = .{ .x = 85, .y = 25 },
             } },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
         },
         .{
@@ -28,10 +28,10 @@
                 .size = .{ .x = 85, .y = 25 },
             } },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
         },
         .{
@@ -42,10 +42,10 @@
                 .size = .{ .x = 85, .y = 25 },
             } },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
         },
         .{
@@ -56,10 +56,10 @@
                 .size = .{ .x = 85, .y = 25 },
             } },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
         },
         .{
@@ -70,10 +70,10 @@
                 .size = .{ .x = 85, .y = 25 },
             } },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
         },
         .{
@@ -84,10 +84,10 @@
                 .size = .{ .x = 85, .y = 25 },
             } },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
         },
         .{
@@ -98,10 +98,10 @@
                 .size = .{ .x = 85, .y = 25 },
             } },
             .hover = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
             .pressed = .{
-                .color = .{ .a = 1 },
+                .color = .{ .a = 255 },
             },
         },
     },

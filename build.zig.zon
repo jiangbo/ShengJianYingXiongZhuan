@@ -1,16 +1,16 @@
 .{
-    .name = .demo,
+    .name = .sjyxz,
     .version = "0.0.0",
-    .fingerprint = 0xd642dfa0c0da2385,
+    .fingerprint = 0x20dd42668683df86,
     .minimum_zig_version = "0.17.0",
     .dependencies = .{
         .migu = .{
-            .url = "git+https://github.com/jiangbo/MiGu.git#866fbac7fbcedd50f5903ec3e6b96a645681b8c2",
-            .hash = "migu-0.1.0-1dj5JkujAAARKTTE_bSeqmQU6cDDcKPBHD4IDP7XqINu",
+            .url = "https://github.com/jiangbo/MiGu/archive/refs/tags/v0.1.0.tar.gz",
+            .hash = "migu-0.1.0-1dj5Juu3AAA47E1TfI1y3ChXI2loyjZEsSCijtSkAcEq",
         },
         .zhuyu = .{
-            .url = "git+https://github.com/jiangbo/ZhuYu.git#82cff22a44e2b5cf20fd7682d8f8b7303eb65078",
-            .hash = "zhuyu-0.1.0-U4gVRg83BwA8Tk5j8ApzdKsCtRyHxh0qiftO2ynnwXoa",
+            .url = "https://github.com/jiangbo/ZhuYu/archive/refs/tags/v0.1.0.tar.gz",
+            .hash = "zhuyu-0.1.0-U4gVRsLFCQAcnSkFbOrRgAaQImOus9GL3H0bA48qnFZj",
         },
     },
 

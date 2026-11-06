@@ -34,12 +34,12 @@ pub fn init(allocator: zhu.Allocator) void {
         const estimate = zon.TileWindow{ .grid = data.grid };
         max = @max(max, estimate.maxVertexCount(2));
     }
-    tileWindow.vertices.ensureTotalCapacity(allocator.raw, max) catch
+    tileWindow.vertices.ensureTotalCapacity(allocator, max) catch
         zhu.oom();
 }
 
 pub fn deinit(allocator: zhu.Allocator) void {
-    tileWindow.vertices.deinit(allocator.raw);
+    tileWindow.vertices.deinit(allocator);
 }
 
 // 清空旧地图并按指定方式创建地图对象和玩家。
@@ -76,7 +76,6 @@ pub fn enter(world: *ecs.World, spawn: Spawn) void {
 
     const position = world.getIdentity(actor.Player, component.Position).?;
     zhu.camera.directFollow(position);
-    zhu.camera.roundMainPosition();
     tileWindow.grid = data.grid;
     tileWindow.area = .init(.zero, .zero);
 }
@@ -142,8 +141,8 @@ fn spawnPortals(world: *ecs.World, data: *const zon.Map) void {
 fn spawnChests(world: *ecs.World, data: *const zon.Map) void {
     const opened = world.getResourcePtr(storage.OpenedChests).?;
     const images = component.ChestImages{
-        .closed = image.sub(.init(.xy(35, 511), .square(32))),
-        .opened = image.sub(.init(.xy(69, 511), .square(32))),
+        .closed = image.sub(.init(.xy(35, 511), .all(32))),
+        .opened = image.sub(.init(.xy(69, 511), .all(32))),
     };
     for (data.chests) |place| {
         const isOpened = opened.isSet(place.id);
@@ -176,7 +175,7 @@ fn spawnActor(world: *ecs.World, key: zon.Actor.Key, progress: u8) void {
     const data = zon.Actor.get(key);
     const entity = world.createEntity();
     var animation = zon.Actor.animation(key);
-    animation.play(data.facing);
+    animation.playIndex(data.facing);
     world.addAll(entity, .{
         key,
         component.Position.xy(data.x + 16, data.y + 32),
@@ -216,7 +215,7 @@ fn spawnPlayer(world: *ecs.World, location: storage.Location) void {
         .xy(16, 16),
     );
     var animation = zon.Actor.animation(.player);
-    animation.play(location.facing);
+    animation.playIndex(location.facing);
     const entity = world.createIdentity(actor.Player);
     world.addAll(entity, .{
         actor.Key.player,
@@ -286,7 +285,7 @@ test "地图瓦片移动" {
         .data = &objects,
     };
 
-    const area = zhu.Rect.init(.xy(40, 40), .square(16));
+    const area = zhu.Rect.init(.xy(40, 40), .all(16));
 
     var moved = walk(area, .xy(20, 0));
     try std.testing.expectEqual(48, moved.min.x);

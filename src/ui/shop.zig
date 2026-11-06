@@ -77,9 +77,6 @@ pub fn draw(world: *ecs.World) void {
     const pos = item.position;
     item.draw(&current.items, index);
 
-    zhu.text.msdf.begin();
-    defer zhu.text.msdf.end();
-
     var buffer: [20]u8 = undefined;
     zhu.text.draw("（金=", pos.addXY(10, 270), .{});
     const money = zhu.format(&buffer, "{d}）", .{inventory.money});

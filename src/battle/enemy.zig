@@ -3,7 +3,6 @@ const zhu = @import("zhu");
 const ecs = @import("ecs");
 
 const audio = zhu.audio;
-const math = zhu.math;
 
 const component = @import("../component.zig");
 const storage = @import("../storage.zig");
@@ -75,15 +74,13 @@ pub const Hurt = struct {
 
     // 绘制敌方抖动和伤害数字。
     pub fn draw(_: *ecs.World) void {
-        const position = math.Vector2.xy(465, 237).addX(offset);
+        const position = zhu.Vector2.xy(465, 237).addX(offset);
         const image = zon.Actor.image(shared.enemyKey, .left);
         zhu.batch.drawImage(image, position, .{});
 
         var buffer: [10]u8 = undefined;
         const y = std.math.lerp(230, 190, timer.progress());
         const text = zhu.format(&buffer, "-{}", .{damage});
-        zhu.text.msdf.begin();
-        defer zhu.text.msdf.end();
         zhu.text.draw(text, .xy(465, y), .{});
     }
 };
@@ -141,9 +138,6 @@ pub const Death = struct {
 
     // 绘制胜利、奖励和升级提示。
     pub fn draw(world: *ecs.World) void {
-        zhu.text.msdf.begin();
-        defer zhu.text.msdf.end();
-
         zhu.text.draw("胜利了！", .xy(285, 175), .{});
         if (step < 1) return;
 
